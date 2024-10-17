@@ -1,0 +1,35 @@
+name: django-postgres-test
+
+services:
+  db:
+    container_name: db
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    container_name: api
+    build:
+      context: ./backend
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./backend:/app
+      - exclude:/app/venv
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres-data:
+  exclude:
